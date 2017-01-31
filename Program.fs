@@ -7,32 +7,31 @@ type DoorState =
     | Car
     | Revealed
 
-let monty_hall_simulator (d: int, o: int, c: int) = 
-    fun (r: Random) ->
-        // Initialize doors.
-        let doors = Array.create d Goat
-        for i in 1..c do
-            let mutable door = r.Next d
-            while doors.[door] <> Goat do
-                door <- r.Next d
-            doors.[door] <- Car
+let monty_hall_simulator d o c (r: Random) = 
+    // Initialize doors.
+    let doors = Array.create d Goat
+    for i in 1..c do
+        let mutable door = r.Next d
+        while doors.[door] <> Goat do
+            door <- r.Next d
+        doors.[door] <- Car
 
-        // Reveal some doors that contain goats.
-        for i in 1..o do
-            let mutable door = r.Next(1,d)
-            while doors.[door] <> Goat do
-                door <- r.Next(1,d)
-            doors.[door] <- Revealed
+    // Reveal some doors that contain goats.
+    for i in 1..o do
+        let mutable door = r.Next(1,d)
+        while doors.[door] <> Goat do
+            door <- r.Next(1,d)
+        doors.[door] <- Revealed
 
-        // Look for the first door that has not been revealed
-        match Array.find (fun elem -> elem <> Revealed) doors.[1..] with
-        | Goat -> 0
-        | Car -> 1
-        | Revealed -> failwith "logic error: unreachable code!"
+    // Look for the first door that has not been revealed
+    match Array.find (fun elem -> elem <> Revealed) doors.[1..] with
+    | Goat -> 0
+    | Car -> 1
+    | Revealed -> failwith "logic error: unreachable code!"
 
-let iterated_monty_hall (n: int, d: int, o: int, c: int) =
+let iterated_monty_hall n d o c =
     let random = new Random()
-    let monty_hall = monty_hall_simulator(d, o, c)
+    let monty_hall = monty_hall_simulator d o c
     Seq.init n (fun _ -> monty_hall random) |> Seq.sum
 
 let usage() = 
@@ -62,7 +61,7 @@ let main argv =
 
         if d < o     then failwith revealerr
         if d < (o+c) then failwith carserror
-        let result = iterated_monty_hall(n,d,o,c)
+        let result = iterated_monty_hall n d o c
 
         printfn "Number of trials: %d" n
         printfn "Number of successes: %d" result
