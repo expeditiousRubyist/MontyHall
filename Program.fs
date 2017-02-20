@@ -34,6 +34,32 @@ let iterated_monty_hall n d o c =
     let monty_hall = monty_hall_simulator d o c
     Seq.init n (fun _ -> monty_hall random) |> Seq.sum
 
+(* 
+        With 3 doors, 1 car, 1 reveal
+        intuition tells us 50% chance of winning
+        thus, we beat intuition if we beat 50%
+
+        How do we come up with the intuitive solution?
+        3 doors - 1 reveal = 2 doors remaining
+        1 door out of 2 contains a car
+*)
+
+
+
+let evaluate n d o c s =
+    let winratio = (decimal s) / (decimal n)
+    let intuition = (decimal c) / ((decimal d) - (decimal o))
+
+    printfn "Number of trials: %d" n
+    printfn "Number of successes: %d" s
+    printfn "Ratio of successes to wins: %M" winratio
+    printfn "Flawed intuitive expected success ratio: %M" intuition
+
+    if winratio > intuition then
+        printfn "Conclusion: Switch strategy is a good idea!"
+    else
+        printfn "Conclusion: Switch strategy not necessarily useful."
+
 let usage() = 
     printfn "Usage: MontyHall trials doors reveals cars"
     printfn "All arguments are mandatory and must be positive integers"
@@ -61,10 +87,8 @@ let main argv =
 
         if d < o     then failwith revealerr
         if d < (o+c) then failwith carserror
-        let result = iterated_monty_hall n d o c
-
-        printfn "Number of trials: %d" n
-        printfn "Number of successes: %d" result
+        
+        iterated_monty_hall n d o c |> evaluate n d o c
         0
     with
         | :? FormatException ->
